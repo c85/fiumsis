@@ -1,24 +1,23 @@
 import os
-from prefect.blocks.system import Secret
-
-kaggle_user = Secret.load("kaggle-username").get()
-kaggle_key = Secret.load("kaggle-key").get()
-os.environ["KAGGLE_USERNAME"] = kaggle_user
-os.environ["KAGGLE_KEY"] = kaggle_key
-
 import pandas as pd
 import zipfile
 import json
-from kaggle.api.kaggle_api_extended import KaggleApi
+from snowflake.connector.pandas_tools import write_pandas
+from prefect.blocks.system import Secret
 from prefect import flow, task, get_run_logger
 from prefect_snowflake import SnowflakeCredentials, SnowflakeConnector
-from snowflake.connector.pandas_tools import write_pandas
 
 @task(name="Get YouTube trending dataset from Kaggle")
 def yt_trending_data_pull():
+    kaggle_user = Secret.load("kaggle-username").get()
+    kaggle_key = Secret.load("kaggle-key").get()
+    os.environ["KAGGLE_USERNAME"] = kaggle_user
+    os.environ["KAGGLE_KEY"] = kaggle_key
+    
     us_yt_trending_df = pd.DataFrame()
     us_yt_category_id_df = pd.DataFrame()
 
+    from kaggle.api.kaggle_api_extended import KaggleApi
     api = KaggleApi()
     api.authenticate()  # uses ~/.kaggle/kaggle.json or KAGGLE_USERNAME/KAGGLE_KEY
 
