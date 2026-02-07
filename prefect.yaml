@@ -29,5 +29,5 @@ deployments:
     job_variables:
       pip_packages:
         - pandas
-        - kaggle
+        - kaggle==1.5.16
   schedules: []
