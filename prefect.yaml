@@ -21,7 +21,7 @@ deployments:
   tags: []
   concurrency_limit: null
   description: null
-  entrypoint: yt_trending_data.py:yt_trending_data
+  entrypoint: projects/YouTube/yt_trending_data.py:yt_trending_data
   parameters: {}
   work_pool:
     name: fiu-msis-workpool
