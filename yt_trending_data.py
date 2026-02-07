@@ -1,5 +1,10 @@
-from dotenv import load_dotenv
-load_dotenv()
+import os
+from prefect.blocks.system import Secret
+
+kaggle_user = Secret.load("kaggle-username").get()
+kaggle_key = Secret.load("kaggle-key").get()
+os.environ["KAGGLE_USERNAME"] = kaggle_user
+os.environ["KAGGLE_KEY"] = kaggle_key
 
 import pandas as pd
 import zipfile
@@ -52,12 +57,12 @@ def yt_trending_data_load(logger, us_yt_trending_df, us_yt_category_id_df):
     with snowflake_connector.get_connection() as conn:
         success, nchunks, nrows, _ = write_pandas(conn, us_yt_trending_df, table_name="US_YT_TRENDING", auto_create_table=True, overwrite=True)
         if success:
-            logger.info(f"Wrote {nrows} rows to US_YT_TRENDING")
+            logger.info(f"Wrote {nrows:,} rows to US_YT_TRENDING")
         else:
             logger.error("Failed to write data to US_YT_TRENDING")
         success, nchunks, nrows, _ = write_pandas(conn, us_yt_category_id_df, table_name="US_YT_CATEGORY", auto_create_table=True, overwrite=True)
         if success:
-            logger.info(f"Wrote {nrows} rows to US_YT_CATEGORY")
+            logger.info(f"Wrote {nrows:,} rows to US_YT_CATEGORY")
         else:
             logger.error("Failed to write data to US_YT_CATEGORY")
 
