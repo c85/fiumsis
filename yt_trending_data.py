@@ -55,16 +55,16 @@ def yt_trending_data_load(logger, us_yt_trending_df, us_yt_category_id_df):
         credentials=snowflake_credentials
     )
     with snowflake_connector.get_connection() as conn:
-        success, nchunks, nrows, _ = write_pandas(conn, us_yt_trending_df, table_name="US_YT_TRENDING", auto_create_table=True, overwrite=True)
+        success, nchunks, nrows, _ = write_pandas(conn, us_yt_trending_df, table_name="STG_US_YT_TRENDING", auto_create_table=True, overwrite=True)
         if success:
-            logger.info(f"Wrote {nrows:,} rows to US_YT_TRENDING")
+            logger.info(f"Wrote {nrows:,} rows to STG_US_YT_TRENDING")
         else:
-            logger.error("Failed to write data to US_YT_TRENDING")
-        success, nchunks, nrows, _ = write_pandas(conn, us_yt_category_id_df, table_name="US_YT_CATEGORY", auto_create_table=True, overwrite=True)
+            logger.error("Failed to write data to STG_US_YT_TRENDING")
+        success, nchunks, nrows, _ = write_pandas(conn, us_yt_category_id_df, table_name="STG_US_YT_CATEGORY", auto_create_table=True, overwrite=True)
         if success:
-            logger.info(f"Wrote {nrows:,} rows to US_YT_CATEGORY")
+            logger.info(f"Wrote {nrows:,} rows to STG_US_YT_CATEGORY")
         else:
-            logger.error("Failed to write data to US_YT_CATEGORY")
+            logger.error("Failed to write data to STG_US_YT_CATEGORY")
 
 @flow(retries=1)
 def yt_trending_data():
