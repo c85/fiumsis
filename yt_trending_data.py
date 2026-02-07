@@ -43,6 +43,9 @@ def yt_trending_data_pull():
         us_yt_category_data = json.load(f)
         us_yt_category_id_df = pd.json_normalize(us_yt_category_data["items"])
 
+    # Remove dots in column names
+    us_yt_category_id_df.columns = us_yt_category_id_df.columns.str.replace('snippet.', '', regex=False)
+
     return us_yt_trending_df, us_yt_category_id_df
 
 @task(name="Load YouTube trending dataset into Snowflake")
@@ -55,12 +58,12 @@ def yt_trending_data_load(logger, us_yt_trending_df, us_yt_category_id_df):
         credentials=snowflake_credentials
     )
     with snowflake_connector.get_connection() as conn:
-        success, nchunks, nrows, _ = write_pandas(conn, us_yt_trending_df, table_name="STG_US_YT_TRENDING", auto_create_table=True, overwrite=True)
+        success, nchunks, nrows, _ = write_pandas(conn, us_yt_trending_df, table_name="STG_US_YT_TRENDING", auto_create_table=True, overwrite=True, quote_identifiers=False)
         if success:
             logger.info(f"Wrote {nrows:,} rows to STG_US_YT_TRENDING")
         else:
             logger.error("Failed to write data to STG_US_YT_TRENDING")
-        success, nchunks, nrows, _ = write_pandas(conn, us_yt_category_id_df, table_name="STG_US_YT_CATEGORY", auto_create_table=True, overwrite=True)
+        success, nchunks, nrows, _ = write_pandas(conn, us_yt_category_id_df, table_name="STG_US_YT_CATEGORY", auto_create_table=True, overwrite=True, quote_identifiers=False)
         if success:
             logger.info(f"Wrote {nrows:,} rows to STG_US_YT_CATEGORY")
         else:
