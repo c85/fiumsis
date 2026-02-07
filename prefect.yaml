@@ -26,5 +26,7 @@ deployments:
   work_pool:
     name: fiu-msis-workpool
     work_queue_name: null
-    job_variables: {}
+    job_variables:
+      pip_packages:
+        - pandas
   schedules: []
