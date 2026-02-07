@@ -31,4 +31,5 @@ deployments:
         - pandas
         - kaggle==1.5.16
         - snowflake-connector-python==4.2.0
+        - prefect-snowflake==0.28.0
   schedules: []
