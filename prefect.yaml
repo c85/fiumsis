@@ -1,0 +1,30 @@
+# Welcome to your prefect.yaml file! You can use this file for storing and managing
+# configuration for deploying your flows. We recommend committing this file to source
+# control along with your flow code.
+
+# Generic metadata about this project
+name: ism6316-project
+prefect-version: 3.6.16
+
+# pull section allows you to provide instructions for cloning this project in remote locations
+pull:
+- prefect.deployments.steps.git_clone:
+    requires: prefect-github
+    repository: https://github.com/c85/ism6316-project
+    branch: main
+    credentials: "{{ prefect.blocks.github-credentials.github-repos-read-only }}"
+
+# the deployments section allows you to provide configuration for deploying flows
+deployments:
+- name: YouTube-Trending-ETL
+  version: null
+  tags: []
+  concurrency_limit: null
+  description: null
+  entrypoint: yt_trending_data.py:yt_trending_data
+  parameters: {}
+  work_pool:
+    name: fiu-msis-workpool
+    work_queue_name: null
+    job_variables: {}
+  schedules: []
