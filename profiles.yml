@@ -1,6 +1,6 @@
 fiu_dbt:
   outputs:
-    dev:
+    prod:
       account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
       database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
       password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
@@ -10,4 +10,4 @@ fiu_dbt:
       type: "{{ env_var('SNOWFLAKE_TYPE') }}"
       user: "{{ env_var('SNOWFLAKE_USER') }}"
       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
-  target: dev
+  target: prod
