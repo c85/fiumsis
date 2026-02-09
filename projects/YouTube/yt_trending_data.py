@@ -7,6 +7,7 @@ from snowflake.connector.pandas_tools import write_pandas
 from prefect.blocks.system import Secret
 from prefect import flow, task, get_run_logger
 from prefect_snowflake import SnowflakeCredentials, SnowflakeConnector
+from prefect_dbt import PrefectDbtRunner, PrefectDbtSettings
 
 @task(name="Get YouTube trending dataset from Kaggle")
 def yt_trending_data_pull():
@@ -49,8 +50,7 @@ def yt_trending_data_pull():
     return us_yt_trending_df, us_yt_category_id_df
 
 @task(name="Load YouTube trending dataset into Snowflake")
-def yt_trending_data_load(logger, us_yt_trending_df, us_yt_category_id_df):
-    snowflake_credentials = SnowflakeCredentials.load("snowflake-credentials")
+def yt_trending_data_load(logger, snowflake_credentials, us_yt_trending_df, us_yt_category_id_df):
     snowflake_connector = SnowflakeConnector(
         database="CLASS_PROJECT",
         warehouse="COMPUTE_WH",
@@ -69,8 +69,33 @@ def yt_trending_data_load(logger, us_yt_trending_df, us_yt_category_id_df):
         else:
             logger.error("Failed to write data to STG_US_YT_CATEGORY")
 
+@task(name="Run dbt build for YouTube trending data model")
+def yt_dbt_model(logger):
+    project_dir = "./fiu_dbt"
+    profiles_dir = "./"
+    
+    settings = PrefectDbtSettings(project_dir=project_dir, profiles_dir=profiles_dir)
+    runner = PrefectDbtRunner(settings=settings)
+    result = runner.invoke(["build", "--select", "yt_trending_data"])
+    if result.success:
+        logger.info("dbt build succeeded!")
+    else:
+        logger.error("dbt build failed!")
+
 @flow(retries=1)
 def yt_trending_data():
+    snowflake_credentials = SnowflakeCredentials.load("snowflake-credentials")
+    
+    # dbt profiles.yml requires these environment variables to connect to Snowflake
+    os.environ["SNOWFLAKE_ACCOUNT"] = SnowflakeCredentials.load("snowflake-credentials").account
+    os.environ["SNOWFLAKE_USER"] = SnowflakeCredentials.load("snowflake-credentials").user
+    os.environ["SNOWFLAKE_PASSWORD"] = SnowflakeCredentials.load("snowflake-credentials").password.get_secret_value()
+    os.environ["SNOWFLAKE_ROLE"] = SnowflakeCredentials.load("snowflake-credentials").role
+    os.environ["SNOWFLAKE_DATABASE"] = "CLASS_PROJECT"
+    os.environ["SNOWFLAKE_SCHEMA"] = "YT_TRENDING_DATA"
+    os.environ["SNOWFLAKE_WAREHOUSE"] = "COMPUTE_WH"
+    os.environ["SNOWFLAKE_TYPE"] = "snowflake"
+
     logger = get_run_logger()
     us_yt_trending_df, us_yt_category_id_df = yt_trending_data_pull()
     if us_yt_trending_df.shape[0] > 0 and us_yt_category_id_df.shape[0] > 0:
@@ -78,7 +103,8 @@ def yt_trending_data():
         logger.info(f"Category dataset contains {us_yt_category_id_df.shape[0]:,} rows")
         us_yt_trending_df['dw_create_ts'] = datetime.now().isoformat()
         us_yt_category_id_df['dw_create_ts'] = datetime.now().isoformat()
-        yt_trending_data_load(logger, us_yt_trending_df, us_yt_category_id_df)
+        yt_trending_data_load(logger, snowflake_credentials, us_yt_trending_df, us_yt_category_id_df)
+        yt_dbt_model(logger)
     else:
         logger.error("Dataset contains no data! Please check the logs for more info!")
 
