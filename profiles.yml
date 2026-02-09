@@ -2,12 +2,12 @@ fiu_dbt:
   outputs:
     prod:
       account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-      database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
       password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
       role: "{{ env_var('SNOWFLAKE_ROLE') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
       schema: "{{ env_var('SNOWFLAKE_SCHEMA') }}"
       threads: 1
-      type: "{{ env_var('SNOWFLAKE_TYPE') }}"
-      user: "{{ env_var('SNOWFLAKE_USER') }}"
-      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
+      type: "snowflake"
   target: prod

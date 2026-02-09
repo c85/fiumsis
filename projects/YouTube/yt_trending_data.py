@@ -71,8 +71,8 @@ def yt_trending_data_load(logger, snowflake_credentials, us_yt_trending_df, us_y
 
 @task(name="Run dbt build for YouTube trending data model")
 def yt_dbt_model(logger):
-    project_dir = "./fiu_dbt"
-    profiles_dir = "./"
+    project_dir = "fiu_dbt"
+    profiles_dir = ""
     
     settings = PrefectDbtSettings(project_dir=project_dir, profiles_dir=profiles_dir)
     runner = PrefectDbtRunner(settings=settings)
@@ -87,14 +87,13 @@ def yt_trending_data():
     snowflake_credentials = SnowflakeCredentials.load("snowflake-credentials")
     
     # dbt profiles.yml requires these environment variables to connect to Snowflake
-    os.environ["SNOWFLAKE_ACCOUNT"] = SnowflakeCredentials.load("snowflake-credentials").account
-    os.environ["SNOWFLAKE_USER"] = SnowflakeCredentials.load("snowflake-credentials").user
-    os.environ["SNOWFLAKE_PASSWORD"] = SnowflakeCredentials.load("snowflake-credentials").password.get_secret_value()
-    os.environ["SNOWFLAKE_ROLE"] = SnowflakeCredentials.load("snowflake-credentials").role
+    os.environ["SNOWFLAKE_ACCOUNT"] = snowflake_credentials.account
+    os.environ["SNOWFLAKE_USER"] = snowflake_credentials.user
+    os.environ["SNOWFLAKE_PASSWORD"] = snowflake_credentials.password.get_secret_value()
+    os.environ["SNOWFLAKE_ROLE"] = snowflake_credentials.role
+    os.environ["SNOWFLAKE_WAREHOUSE"] = "COMPUTE_WH"
     os.environ["SNOWFLAKE_DATABASE"] = "CLASS_PROJECT"
     os.environ["SNOWFLAKE_SCHEMA"] = "YT_TRENDING_DATA"
-    os.environ["SNOWFLAKE_WAREHOUSE"] = "COMPUTE_WH"
-    os.environ["SNOWFLAKE_TYPE"] = "snowflake"
 
     logger = get_run_logger()
     us_yt_trending_df, us_yt_category_id_df = yt_trending_data_pull()
