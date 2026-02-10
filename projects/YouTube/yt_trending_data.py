@@ -70,17 +70,13 @@ def yt_trending_data_load(logger, snowflake_credentials, us_yt_trending_df, us_y
             logger.error("Failed to write data to STG_US_YT_CATEGORY")
 
 @task(name="Run dbt build for YouTube trending data model")
-def yt_dbt_model(logger):
+def yt_dbt_model():
     project_dir = "fiu_dbt"
     profiles_dir = ""
     
     settings = PrefectDbtSettings(project_dir=project_dir, profiles_dir=profiles_dir)
     runner = PrefectDbtRunner(settings=settings)
-    result = runner.invoke(["build", "--select", "yt_trending_data"])
-    if result.success:
-        logger.info("dbt build succeeded!")
-    else:
-        logger.error("dbt build failed!")
+    runner.invoke(["build", "--select", "yt_trending_data"])
 
 @flow(retries=1)
 def yt_trending_data():
@@ -103,7 +99,7 @@ def yt_trending_data():
         #us_yt_trending_df['dw_create_ts'] = datetime.now().isoformat()
         #us_yt_category_id_df['dw_create_ts'] = datetime.now().isoformat()
         #yt_trending_data_load(logger, snowflake_credentials, us_yt_trending_df, us_yt_category_id_df)
-        yt_dbt_model(logger)
+        yt_dbt_model()
     else:
         logger.error("Dataset contains no data! Please check the logs for more info!")
 
