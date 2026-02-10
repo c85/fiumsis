@@ -100,9 +100,9 @@ def yt_trending_data():
     if us_yt_trending_df.shape[0] > 0 and us_yt_category_id_df.shape[0] > 0:
         logger.info(f"YouTube trending dataset contains {us_yt_trending_df.shape[0]:,} rows")
         logger.info(f"Category dataset contains {us_yt_category_id_df.shape[0]:,} rows")
-        us_yt_trending_df['dw_create_ts'] = datetime.now().isoformat()
-        us_yt_category_id_df['dw_create_ts'] = datetime.now().isoformat()
-        yt_trending_data_load(logger, snowflake_credentials, us_yt_trending_df, us_yt_category_id_df)
+        #us_yt_trending_df['dw_create_ts'] = datetime.now().isoformat()
+        #us_yt_category_id_df['dw_create_ts'] = datetime.now().isoformat()
+        #yt_trending_data_load(logger, snowflake_credentials, us_yt_trending_df, us_yt_category_id_df)
         yt_dbt_model(logger)
     else:
         logger.error("Dataset contains no data! Please check the logs for more info!")

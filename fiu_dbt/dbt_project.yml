@@ -17,4 +17,23 @@ clean-targets:
 models:
   fiu_dbt:
     yt_trending_data:
-      +materialized: table
+      dim_video:
+        +materialized: incremental
+        +unique_key: video_id
+        +incremental_strategy: merge
+        +merge_exclude_columns: ["DW_CREATE_TS"]
+      dim_channel:
+        +materialized: incremental
+        +unique_key: channelid
+        +incremental_strategy: merge
+        +merge_exclude_columns: ["DW_CREATE_TS"]
+      dim_category:
+        +materialized: incremental
+        +unique_key: categoryid
+        +incremental_strategy: merge
+        +merge_exclude_columns: ["DW_CREATE_TS"]
+      fact_yt_trending:
+        +materialized: incremental
+        +unique_key: ['video_id', 'channelid', 'categoryid']
+        +incremental_strategy: merge
+        +merge_exclude_columns: ["DW_CREATE_TS"]

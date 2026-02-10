@@ -1,0 +1,7 @@
+select distinct 
+    CHANNELID,
+    CHANNELTITLE,
+    CURRENT_TIMESTAMP() AS DW_CREATE_TS, 
+    CURRENT_TIMESTAMP() AS DW_UPDATE_TS
+from CLASS_PROJECT.YT_TRENDING_DATA.STG_US_YT_TRENDING
+qualify row_number() over (partition by CHANNELID order by VIEW_COUNT desc) = 1
