@@ -1,15 +1,5 @@
-Welcome to your new dbt project!
+# FIU MSIS Projects
 
-### Using the starter project
+This repository contains coursework and analytics engineering work for the **Master of Science in Information Systems (MSIS)** program at Florida International University.
 
-Try running the following commands:
-- dbt run
-- dbt test
-
-
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+Current work includes dbt models and data pipelines in `fiu_dbt/`, along with other class projects.
