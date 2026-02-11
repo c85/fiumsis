@@ -21,19 +21,19 @@ models:
         +materialized: incremental
         +unique_key: video_id
         +incremental_strategy: merge
-        +merge_exclude_columns: ["DW_CREATE_TS"]
+        +merge_exclude_columns: ["DW_CREATE_TS", "VIDEO_KEY"]
       dim_channel:
         +materialized: incremental
         +unique_key: channelid
         +incremental_strategy: merge
-        +merge_exclude_columns: ["DW_CREATE_TS"]
+        +merge_exclude_columns: ["DW_CREATE_TS", "CHANNEL_KEY"]
       dim_category:
         +materialized: incremental
         +unique_key: categoryid
         +incremental_strategy: merge
-        +merge_exclude_columns: ["DW_CREATE_TS"]
+        +merge_exclude_columns: ["DW_CREATE_TS", "CATEGORY_KEY"]
       fact_yt_trending:
         +materialized: incremental
-        +unique_key: ['video_id', 'channelid', 'categoryid']
+        +unique_key: ['VIDEO_KEY', 'CHANNEL_KEY', 'CATEGORY_KEY']
         +incremental_strategy: merge
         +merge_exclude_columns: ["DW_CREATE_TS"]

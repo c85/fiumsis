@@ -1,8 +1,14 @@
 SELECT
-    VIDEO_ID,
-    CHANNELID,
-    CATEGORYID,
+    B.VIDEO_KEY,
+    D.CHANNEL_KEY,
+    C.CATEGORY_KEY,
     CURRENT_TIMESTAMP() AS DW_CREATE_TS, 
     CURRENT_TIMESTAMP() AS DW_UPDATE_TS
-FROM CLASS_PROJECT.YT_TRENDING_DATA.STG_US_YT_TRENDING
-qualify row_number() over (partition by VIDEO_ID order by VIEW_COUNT desc) = 1
+FROM CLASS_PROJECT.YT_TRENDING_DATA.STG_US_YT_TRENDING A
+JOIN {{ ref('dim_video') }} B
+ON A.VIDEO_ID = B.VIDEO_ID
+JOIN {{ ref('dim_category') }} C
+ON A.CATEGORYID = C.CATEGORYID
+JOIN {{ ref('dim_channel') }} D
+ON A.CHANNELID = D.CHANNELID
+qualify row_number() over (partition by B.VIDEO_KEY order by A.VIEW_COUNT desc) = 1
