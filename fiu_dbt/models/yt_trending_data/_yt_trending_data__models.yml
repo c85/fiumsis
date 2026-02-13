@@ -152,22 +152,25 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('dim_video')
-              field: VIDEO_KEY
+              arguments:
+                to: ref('dim_video')
+                field: VIDEO_KEY
       - name: CHANNEL_KEY
         description: Foreign key to dim_channel table, identifies the channel that published the video
         tests:
           - not_null
           - relationships:
-              to: ref('dim_channel')
-              field: CHANNEL_KEY
+              arguments:
+                to: ref('dim_channel')
+                field: CHANNEL_KEY
       - name: CATEGORY_KEY
         description: Foreign key to dim_category table, identifies the video category
         tests:
           - not_null
           - relationships:
-              to: ref('dim_category')
-              field: CATEGORY_KEY
+              arguments:
+                to: ref('dim_category')
+                field: CATEGORY_KEY
       - name: DW_CREATE_TS
         description: Timestamp when the record was first created in the data warehouse
       - name: DW_UPDATE_TS
