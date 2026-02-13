@@ -27,6 +27,7 @@ jobs:
         run: |
           pip install dbt-core dbt-snowflake  # Change to your adapter
       - name: Generate dbt documentation
+        working-directory: ./fiu_dbt
         run: |
           dbt docs generate --no-compile
       - name: Build And Deploy
