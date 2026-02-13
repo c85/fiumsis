@@ -29,7 +29,7 @@ jobs:
       - name: Generate dbt documentation
         working-directory: ./fiu_dbt
         run: |
-          dbt docs generate --no-compile
+          dbt docs generate --no-compile --profiles-dir ..
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
