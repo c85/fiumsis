@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: dim_category
-    description: >
+    description: |
       **Category Dimension Table**
       
       This dimension table contains unique YouTube video categories from the Kaggle YouTube Trending Video Dataset.
@@ -34,7 +34,7 @@ models:
         description: Timestamp when the record was last updated in the data warehouse
 
   - name: dim_channel
-    description: >
+    description: |
       **Channel Dimension Table**
       
       This dimension table contains unique YouTube channels that have had trending videos.
@@ -66,7 +66,7 @@ models:
         description: Timestamp when the record was last updated in the data warehouse
 
   - name: dim_video
-    description: >
+    description: |
       **Video Dimension Table**
       
       This dimension table contains unique YouTube videos that have appeared on the trending list, 
@@ -124,7 +124,7 @@ models:
         description: Timestamp when the record was last updated in the data warehouse
 
   - name: fact_yt_trending
-    description: >
+    description: |
       **YouTube Trending Fact Table**
       
       This fact table represents the relationships between trending videos, their channels, and categories,
