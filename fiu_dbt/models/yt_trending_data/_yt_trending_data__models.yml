@@ -1,0 +1,174 @@
+version: 2
+
+models:
+  - name: dim_category
+    description: >
+      **Category Dimension Table**
+      
+      This dimension table contains unique YouTube video categories from the Kaggle YouTube Trending Video Dataset.
+      
+      **Source Data:** Kaggle dataset (https://www.kaggle.com/datasets/rsrishav/youtube-trending-video-dataset/data)
+      
+      **Transformations Applied:**
+      - Extracts distinct categories from the staging table (STG_US_YT_CATEGORY)
+      - Generates a surrogate key (CATEGORY_KEY) using a Snowflake sequence
+      - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
+      - Preserves original category metadata including ID, title, and assignability status
+    columns:
+      - name: CATEGORY_KEY
+        description: Surrogate key generated using Snowflake sequence for unique identification in the data warehouse
+        tests:
+          - unique
+          - not_null
+      - name: CATEGORYID
+        description: Original YouTube category ID from the source dataset
+        tests:
+          - not_null
+      - name: TITLE
+        description: Name of the video category (e.g., Entertainment, Music, Gaming, News & Politics)
+      - name: ASSIGNABLE
+        description: Boolean flag indicating whether content creators can assign this category to their videos
+      - name: DW_CREATE_TS
+        description: Timestamp when the record was first created in the data warehouse
+      - name: DW_UPDATE_TS
+        description: Timestamp when the record was last updated in the data warehouse
+
+  - name: dim_channel
+    description: >
+      **Channel Dimension Table**
+      
+      This dimension table contains unique YouTube channels that have had trending videos.
+      
+      **Source Data:** Kaggle dataset (https://www.kaggle.com/datasets/rsrishav/youtube-trending-video-dataset/data)
+      
+      **Transformations Applied:**
+      - Extracts distinct channels from the staging table (STG_US_YT_TRENDING)
+      - Generates a surrogate key (CHANNEL_KEY) using a Snowflake sequence
+      - Uses QUALIFY clause with ROW_NUMBER() window function to select one record per channel (based on highest view count)
+      - Deduplicates channels that appear multiple times across trending videos
+      - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
+    columns:
+      - name: CHANNEL_KEY
+        description: Surrogate key generated using Snowflake sequence for unique identification in the data warehouse
+        tests:
+          - unique
+          - not_null
+      - name: CHANNELID
+        description: Original YouTube channel ID from the source dataset
+        tests:
+          - unique
+          - not_null
+      - name: CHANNELTITLE
+        description: Name of the YouTube channel
+      - name: DW_CREATE_TS
+        description: Timestamp when the record was first created in the data warehouse
+      - name: DW_UPDATE_TS
+        description: Timestamp when the record was last updated in the data warehouse
+
+  - name: dim_video
+    description: >
+      **Video Dimension Table**
+      
+      This dimension table contains unique YouTube videos that have appeared on the trending list, 
+      along with their metadata and engagement metrics.
+      
+      **Source Data:** Kaggle dataset (https://www.kaggle.com/datasets/rsrishav/youtube-trending-video-dataset/data)
+      
+      **Transformations Applied:**
+      - Extracts distinct videos from the staging table (STG_US_YT_TRENDING)
+      - Generates a surrogate key (VIDEO_KEY) using a Snowflake sequence
+      - Uses QUALIFY clause with ROW_NUMBER() window function to select one record per video (based on highest view count)
+      - Deduplicates videos that may have appeared on trending list multiple times
+      - Preserves comprehensive video metadata including title, description, publish date, trending date
+      - Captures engagement metrics (views, likes, dislikes, comments)
+      - Includes video settings (comments disabled, ratings disabled)
+      - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
+    columns:
+      - name: VIDEO_KEY
+        description: Surrogate key generated using Snowflake sequence for unique identification in the data warehouse
+        tests:
+          - unique
+          - not_null
+      - name: VIDEO_ID
+        description: Original YouTube video ID from the source dataset
+        tests:
+          - unique
+          - not_null
+      - name: TITLE
+        description: Title of the YouTube video
+      - name: DESCRIPTION
+        description: Full text description of the video provided by the content creator
+      - name: PUBLISHEDAT
+        description: Date and time when the video was originally published on YouTube
+      - name: TRENDING_DATE
+        description: Date when the video appeared on the YouTube trending list
+      - name: VIEW_COUNT
+        description: Total number of views the video received (captured at trending time)
+      - name: LIKES
+        description: Number of likes the video received (captured at trending time)
+      - name: DISLIKES
+        description: Number of dislikes the video received (captured at trending time)
+      - name: COMMENT_COUNT
+        description: Total number of comments on the video (captured at trending time)
+      - name: TAGS
+        description: Tags/keywords associated with the video for discoverability
+      - name: THUMBNAIL_LINK
+        description: URL to the video thumbnail image
+      - name: COMMENTS_DISABLED
+        description: Boolean flag indicating whether comments are disabled on this video
+      - name: RATINGS_DISABLED
+        description: Boolean flag indicating whether ratings (likes/dislikes) are disabled on this video
+      - name: DW_CREATE_TS
+        description: Timestamp when the record was first created in the data warehouse
+      - name: DW_UPDATE_TS
+        description: Timestamp when the record was last updated in the data warehouse
+
+  - name: fact_yt_trending
+    description: >
+      **YouTube Trending Fact Table**
+      
+      This fact table represents the relationships between trending videos, their channels, and categories,
+      forming the core of a star schema dimensional model for YouTube trending video analysis.
+      
+      **Source Data:** Kaggle dataset (https://www.kaggle.com/datasets/rsrishav/youtube-trending-video-dataset/data)
+      
+      **Transformations Applied:**
+      - Joins staging data (STG_US_YT_TRENDING) with all three dimension tables
+      - Links videos to their associated channels and categories using foreign keys
+      - Uses dbt ref() function for proper dependency management between models
+      - Implements QUALIFY clause with ROW_NUMBER() to deduplicate records per video (keeping highest view count)
+      - Contains only surrogate keys from dimensions, following star schema best practices
+      - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
+      
+      **Purpose:** 
+      This table enables efficient analysis of trending video patterns by category, channel performance,
+      and relationships between videos, channels, and categories. It supports queries like:
+      - Which categories have the most trending videos?
+      - Which channels produce the most trending content?
+      - Video performance across different categories
+    columns:
+      - name: VIDEO_KEY
+        description: Foreign key to dim_video table, identifies the trending video
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_video')
+              field: VIDEO_KEY
+      - name: CHANNEL_KEY
+        description: Foreign key to dim_channel table, identifies the channel that published the video
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_channel')
+              field: CHANNEL_KEY
+      - name: CATEGORY_KEY
+        description: Foreign key to dim_category table, identifies the video category
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_category')
+              field: CATEGORY_KEY
+      - name: DW_CREATE_TS
+        description: Timestamp when the record was first created in the data warehouse
+      - name: DW_UPDATE_TS
+        description: Timestamp when the record was last updated in the data warehouse
