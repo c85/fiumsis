@@ -11,12 +11,12 @@ models:
       
       **Transformations Applied:**
       - Extracts distinct categories from the staging table (STG_US_YT_CATEGORY)
-      - Generates a surrogate key (CATEGORY_KEY) using a Snowflake sequence
+      - Generates a data warehouse key (CATEGORY_KEY) using a Snowflake sequence
       - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
       - Preserves original category metadata including ID, title, and assignability status
     columns:
       - name: CATEGORY_KEY
-        description: Surrogate key generated using Snowflake sequence for unique identification in the data warehouse
+        description: Data warehouse key generated using Snowflake sequence for unique identification in the data warehouse
         tests:
           - unique
           - not_null
@@ -43,13 +43,13 @@ models:
       
       **Transformations Applied:**
       - Extracts distinct channels from the staging table (STG_US_YT_TRENDING)
-      - Generates a surrogate key (CHANNEL_KEY) using a Snowflake sequence
+      - Generates a data warehouse key (CHANNEL_KEY) using a Snowflake sequence
       - Uses QUALIFY clause with ROW_NUMBER() window function to select one record per channel (based on highest view count)
       - Deduplicates channels that appear multiple times across trending videos
       - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
     columns:
       - name: CHANNEL_KEY
-        description: Surrogate key generated using Snowflake sequence for unique identification in the data warehouse
+        description: Data warehouse key generated using Snowflake sequence for unique identification in the data warehouse
         tests:
           - unique
           - not_null
@@ -76,7 +76,7 @@ models:
       
       **Transformations Applied:**
       - Extracts distinct videos from the staging table (STG_US_YT_TRENDING)
-      - Generates a surrogate key (VIDEO_KEY) using a Snowflake sequence
+      - Generates a data warehouse key (VIDEO_KEY) using a Snowflake sequence
       - Uses QUALIFY clause with ROW_NUMBER() window function to select one record per video (based on highest view count)
       - Deduplicates videos that may have appeared on trending list multiple times
       - Preserves comprehensive video metadata including title, description, publish date, trending date
@@ -85,7 +85,7 @@ models:
       - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
     columns:
       - name: VIDEO_KEY
-        description: Surrogate key generated using Snowflake sequence for unique identification in the data warehouse
+        description: Data warehouse key generated using Snowflake sequence for unique identification in the data warehouse
         tests:
           - unique
           - not_null
@@ -137,7 +137,7 @@ models:
       - Links videos to their associated channels and categories using foreign keys
       - Uses dbt ref() function for proper dependency management between models
       - Implements QUALIFY clause with ROW_NUMBER() to deduplicate records per video (keeping highest view count)
-      - Contains only surrogate keys from dimensions, following star schema best practices
+      - Contains only data warehouse keys from dimensions, following star schema best practices
       - Adds data warehouse audit timestamps (DW_CREATE_TS, DW_UPDATE_TS)
       
       **Purpose:** 
